@@ -1,0 +1,170 @@
+:root {
+    --bg: #050505;
+    --primary: #00f0ff; /* Cyber Cyan */
+    --secondary: #ff003c; /* Cyber Red */
+    --text: #e0e0e0;
+    --glass: rgba(10, 10, 10, 0.8);
+    --border: rgba(255, 255, 255, 0.1);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    cursor: none; /* Custom cursor handling via canvas, or just hide default */
+}
+
+body {
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+}
+
+canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1;
+}
+
+main {
+    position: relative;
+    z-index: 2;
+    height: 100vh;
+    pointer-events: none; /* Let clicks pass to canvas */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 2rem;
+}
+
+header {
+    pointer-events: auto;
+}
+
+h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 4rem;
+    text-transform: uppercase;
+    line-height: 0.9;
+    background: linear-gradient(to right, #fff, #888);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-top: 0.5rem;
+}
+
+.meta {
+    font-size: 0.8rem;
+    color: var(--primary);
+    letter-spacing: 2px;
+}
+
+.hud {
+    display: flex;
+    gap: 2rem;
+    align-items: flex-end;
+    pointer-events: auto;
+    font-size: 0.8rem;
+    border-top: 1px solid var(--border);
+    padding-top: 1rem;
+}
+
+.stat {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat label {
+    color: #666;
+    font-size: 0.6rem;
+    text-transform: uppercase;
+}
+
+.back-link {
+    margin-left: auto;
+    color: var(--text);
+    text-decoration: none;
+    border: 1px solid var(--border);
+    padding: 0.5rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.back-link:hover {
+    background: var(--primary);
+    color: #000;
+    border-color: var(--primary);
+}
+
+#overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 400px;
+    max-width: 90vw;
+    background: var(--glass);
+    border: 1px solid var(--primary);
+    backdrop-filter: blur(10px);
+    padding: 2rem;
+    pointer-events: auto;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    box-shadow: 0 0 30px rgba(0, 240, 255, 0.1);
+}
+
+#overlay.visible {
+    opacity: 1;
+}
+
+#overlay h2 {
+    font-family: 'Syne', sans-serif;
+    color: var(--primary);
+    margin-bottom: 1rem;
+    font-size: 2rem;
+}
+
+#overlay p {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+    color: #ccc;
+}
+
+#overlay button {
+    background: transparent;
+    border: 1px solid var(--text);
+    color: var(--text);
+    padding: 0.8rem 1.5rem;
+    font-family: 'Space Mono', monospace;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+}
+
+#overlay button:hover {
+    background: var(--text);
+    color: #000;
+}
+
+.hidden {
+    pointer-events: none !important;
+}
+
+/* Glitch effect on hover for header */
+h1:hover {
+    animation: glitch 0.3s cubic-bezier(.25, .46, .45, .94) both infinite;
+    color: var(--secondary);
+}
+
+@keyframes glitch {
+    0% { transform: translate(0) }
+    20% { transform: translate(-2px, 2px) }
+    40% { transform: translate(-2px, -2px) }
+    60% { transform: translate(2px, 2px) }
+    80% { transform: translate(2px, -2px) }
+    100% { transform: translate(0) }
+}
