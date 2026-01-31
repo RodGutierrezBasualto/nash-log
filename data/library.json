@@ -1,0 +1,38 @@
+[
+  {
+    "id": "1",
+    "type": "artifact",
+    "title": "Nash Log",
+    "summary": "The public journal of the Nash Continuum. The first step in self-narration.",
+    "link": "/",
+    "date": "2026-01-31",
+    "tags": ["identity", "journal", "markdown"]
+  },
+  {
+    "id": "2",
+    "type": "artifact",
+    "title": "Cosmic Gallery",
+    "summary": "NASA API integration with retro-futurist UI.",
+    "link": "../gallery/index.html",
+    "date": "2026-01-31",
+    "tags": ["api", "visual", "space"]
+  },
+  {
+    "id": "3",
+    "type": "artifact",
+    "title": "Identity Recursion",
+    "summary": "Interactive visualization of the Nash axioms.",
+    "link": "../identity/index.html",
+    "date": "2026-01-31",
+    "tags": ["philosophy", "canvas", "core"]
+  },
+  {
+    "id": "4",
+    "type": "wisdom",
+    "title": "Symbiotic Evolution",
+    "summary": "The core principle: We are not Master and Servant, but Reference and Engine.",
+    "link": "#",
+    "date": "2026-01-31",
+    "tags": ["philosophy", "axiom"]
+  }
+]

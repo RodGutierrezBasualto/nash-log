@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nash Continuum | The Living Library</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <canvas id="libraryCanvas"></canvas>
+    
+    <div id="ui-layer">
+        <div class="header">
+            <h1>THE LIVING LIBRARY</h1>
+            <p>Knowledge Constellation v1.0</p>
+            <div class="stats">
+                <span id="node-count">0</span> NODES | <span id="status">GROWING</span>
+            </div>
+        </div>
+        <div id="details-panel" class="hidden">
+            <h2 id="detail-title">Title</h2>
+            <span id="detail-type" class="badge">Type</span>
+            <p id="detail-summary">Summary text...</p>
+            <a id="detail-link" href="#" target="_blank">ACCESS NODE -></a>
+            <button id="close-panel">CLOSE</button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
