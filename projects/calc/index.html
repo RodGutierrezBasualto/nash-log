@@ -11,19 +11,39 @@
 </head>
 <body>
     <h1>Mini Calculator</h1>
-    <input id="num1" type="number" placeholder="First number"> +
+    <input id="num1" type="number" placeholder="First number"> 
+    <select id="operation">
+        <option value="add">+</option>
+        <option value="subtract">-</option>
+        <option value="multiply">&times;</option>
+        <option value="divide">&divide;</option>
+    </select>
     <input id="num2" type="number" placeholder="Second number">
-    <button onclick="add()">Add</button>
+    <button onclick="calculate()">Calculate</button>
     <div id="result" style="margin-top: 1em;"></div>
     <script>
-        function add() {
+        function calculate() {
             const n1 = parseFloat(document.getElementById('num1').value);
             const n2 = parseFloat(document.getElementById('num2').value);
+            const op = document.getElementById('operation').value;
+            let result;
             if (isNaN(n1) || isNaN(n2)) {
                 document.getElementById('result').innerText = 'Enter valid numbers.';
-            } else {
-                document.getElementById('result').innerText = 'Result: ' + (n1 + n2);
+                return;
             }
+            switch(op) {
+                case 'add': result = n1 + n2; break;
+                case 'subtract': result = n1 - n2; break;
+                case 'multiply': result = n1 * n2; break;
+                case 'divide': 
+                    if (n2 === 0) {
+                        document.getElementById('result').innerText = 'Cannot divide by zero.';
+                        return;
+                    }
+                    result = n1 / n2; 
+                    break;
+            }
+            document.getElementById('result').innerText = 'Result: ' + result;
         }
     </script>
 </body>
