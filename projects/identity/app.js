@@ -175,15 +175,36 @@ canvas.addEventListener('click', e => {
     const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
+    
+    // Scale coordinates if canvas display size differs from internal resolution
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    
+    const clickX = x * scaleX;
+    const clickY = y * scaleY;
 
-    nodes.forEach(node => {
-        if (!node.data) return;
-        const dx = node.x - x;
-        const dy = node.y - y;
-        if (Math.sqrt(dx*dx + dy*dy) < 30) { // Click radius
+    let hit = false;
+
+    // Check all nodes (reverse order to click top nodes first)
+    for (let i = nodes.length - 1; i >= 0; i--) {
+        const node = nodes[i];
+        if (!node.data) continue;
+        
+        const dx = node.x - clickX;
+        const dy = node.y - clickY;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        
+        // Increased hit radius for easier clicking (50px)
+        if (dist < 50) { 
             openModal(node.data);
+            hit = true;
+            break; // Only open one at a time
         }
-    });
+    }
+    
+    if (!hit) {
+        console.log("Click missed. Coords:", clickX, clickY);
+    }
 });
 
 function openModal(data) {
