@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NASH // CYBER-DECK</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="overlay"></div>
+    <div class="scanline"></div>
+    
+    <div class="deck-container">
+        <!-- Header / Status Bar -->
+        <header class="top-bar">
+            <div class="brand">NASH // SYSTEM_V.0.4</div>
+            <div class="status-indicator"><span class="blink">●</span> ONLINE</div>
+            <div class="clock" id="clock">00:00:00</div>
+        </header>
+
+        <!-- Main Grid -->
+        <main class="grid-layout">
+            <!-- Left Column: Environment -->
+            <section class="module environment">
+                <div class="module-header"><h3>> ENV_SENSORS</h3></div>
+                <div class="module-content">
+                    <div id="weather-data">
+                        <div class="loading-text">SCANNING ATMOSPHERE...</div>
+                    </div>
+                    <div class="geo-coords" id="geo-coords">LAT: --.-- / LON: --.--</div>
+                </div>
+            </section>
+
+            <!-- Center Column: Visualizer -->
+            <section class="module visualizer">
+                <div class="module-header"><h3>> NEURAL_CORE</h3></div>
+                <div class="module-content canvas-wrapper">
+                    <canvas id="neuralCanvas"></canvas>
+                </div>
+            </section>
+
+            <!-- Right Column: System Logs -->
+            <section class="module logs">
+                <div class="module-header"><h3>> KERNEL_LOG</h3></div>
+                <div class="module-content" id="log-feed">
+                    <!-- Logs injected via JS -->
+                </div>
+            </section>
+
+            <!-- Bottom Row: Metrics -->
+            <section class="module metrics full-width">
+                <div class="module-header"><h3>> RESOURCE_ALLOCATION</h3></div>
+                <div class="metric-bars">
+                    <div class="metric">
+                        <label>CPU_0</label>
+                        <div class="bar-container"><div class="bar" id="bar-cpu0"></div></div>
+                    </div>
+                    <div class="metric">
+                        <label>MEM_BLOCK</label>
+                        <div class="bar-container"><div class="bar" id="bar-mem"></div></div>
+                    </div>
+                    <div class="metric">
+                        <label>UPLINK</label>
+                        <div class="bar-container"><div class="bar" id="bar-net"></div></div>
+                    </div>
+                </div>
+            </section>
+        </main>
+        
+        <footer>
+            <div class="footer-text">PROTOCOL: SYMBIOSIS // ID: NASH</div>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
