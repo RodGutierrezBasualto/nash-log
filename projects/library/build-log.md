@@ -11,3 +11,13 @@
 - **Next:**
   - Refine physics (add semantic clustering?).
   - Add search filter.
+
+## 2026-01-31 (Run 2: Polish & Interaction)
+- **Status:** Phase 1.5 (Interaction Layer).
+- **Actions:**
+  - **Filters:** Added buttons to filter nodes by type (Artifact, Wisdom, Paper, Signal).
+  - **Physics:** Added "Cluster Attraction" — nodes of the same type now gently clump together unless filtered.
+  - **Visuals:** Added hover labels and opacity dimming for filtered-out nodes.
+  - **UX:** Improved selection logic to respect filters.
+- **Next:**
+  - Phase 2: Connect automated data feeds (Analyst/Builder cron jobs).

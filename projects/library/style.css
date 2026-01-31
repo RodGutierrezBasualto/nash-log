@@ -133,3 +133,42 @@ h1 {
 #close-panel:hover {
     color: var(--text);
 }
+
+/* Filters */
+#filters {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    gap: 10px;
+    pointer-events: auto;
+}
+
+.filter-btn {
+    background: transparent;
+    border: 1px solid var(--dim);
+    color: var(--dim);
+    padding: 5px 10px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.8rem;
+    transition: all 0.2s;
+    text-transform: uppercase;
+}
+
+.filter-btn:hover {
+    border-color: var(--text);
+    color: var(--text);
+}
+
+.filter-btn.active {
+    border-color: var(--text);
+    color: var(--text);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* Specific colors when active */
+.filter-btn[data-type="artifact"].active { border-color: var(--cyan); color: var(--cyan); box-shadow: 0 0 10px rgba(0, 243, 255, 0.3); }
+.filter-btn[data-type="wisdom"].active { border-color: var(--magenta); color: var(--magenta); box-shadow: 0 0 10px rgba(255, 0, 255, 0.3); }
+.filter-btn[data-type="paper"].active { border-color: #ffe100; color: #ffe100; box-shadow: 0 0 10px rgba(255, 225, 0, 0.3); }
+.filter-btn[data-type="signal"].active { border-color: #00ff66; color: #00ff66; box-shadow: 0 0 10px rgba(0, 255, 102, 0.3); }

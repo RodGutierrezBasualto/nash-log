@@ -5,6 +5,7 @@ const ctx = canvas.getContext('2d');
 const CONFIG = {
     nodeSize: 4,
     connectionDist: 150,
+    attractionForce: 0.0005, // Strength of semantic cluster attraction
     colors: {
         artifact: '#00f3ff', // Cyan
         wisdom: '#ff00ff',   // Magenta
@@ -17,6 +18,7 @@ let nodes = [];
 let width, height;
 let mouse = { x: null, y: null };
 let selectedNode = null;
+let activeFilter = 'all';
 
 // Node Class
 class Node {
@@ -29,9 +31,11 @@ class Node {
         this.size = CONFIG.nodeSize;
         this.color = CONFIG.colors[data.type] || '#fff';
         this.hovered = false;
+        this.opacity = 1;
     }
 
-    update() {
+    update(allNodes) {
+        // Physics
         this.x += this.vx;
         this.y += this.vy;
 
@@ -39,7 +43,32 @@ class Node {
         if (this.x < 0 || this.x > width) this.vx *= -1;
         if (this.y < 0 || this.y > height) this.vy *= -1;
 
+        // Cluster Attraction (Same Type)
+        // Only if no filter is active (otherwise it gets messy)
+        if (activeFilter === 'all') {
+            allNodes.forEach(other => {
+                if (this !== other && this.data.type === other.data.type) {
+                    const dx = other.x - this.x;
+                    const dy = other.y - this.y;
+                    const dist = Math.sqrt(dx*dx + dy*dy);
+                    
+                    if (dist < 300) { // Only attract if somewhat close
+                        this.vx += dx * CONFIG.attractionForce;
+                        this.vy += dy * CONFIG.attractionForce;
+                    }
+                }
+            });
+            
+            // Limit speed so they don't explode
+            const speed = Math.sqrt(this.vx*this.vx + this.vy*this.vy);
+            if (speed > 1) {
+                this.vx = (this.vx / speed) * 1;
+                this.vy = (this.vy / speed) * 1;
+            }
+        }
+
         // Mouse interaction
+        this.hovered = false;
         if (mouse.x) {
             const dx = mouse.x - this.x;
             const dy = mouse.y - this.y;
@@ -47,29 +76,52 @@ class Node {
             
             if (dist < 30) {
                 this.hovered = true;
-                this.size = CONFIG.nodeSize * 2;
-            } else {
-                this.hovered = false;
-                this.size = CONFIG.nodeSize;
+                // Expand slightly if hovered
             }
+        }
+        
+        // Filter logic
+        if (activeFilter !== 'all' && this.data.type !== activeFilter) {
+            this.opacity = 0.1;
+        } else {
+            this.opacity = 1;
+        }
+        
+        // Size logic
+        if (this.hovered || this === selectedNode) {
+            this.size = CONFIG.nodeSize * 2.5;
+        } else {
+            this.size = CONFIG.nodeSize;
         }
     }
 
     draw() {
+        ctx.globalAlpha = this.opacity;
+        
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
         ctx.fillStyle = this.color;
-        ctx.fill();
         
         // Glow
-        if (this.hovered || this === selectedNode) {
+        if (this.opacity > 0.5 && (this.hovered || this === selectedNode)) {
             ctx.shadowBlur = 15;
             ctx.shadowColor = this.color;
         } else {
             ctx.shadowBlur = 0;
         }
+        
         ctx.fill();
         ctx.shadowBlur = 0; // Reset
+
+        // Label on hover/select
+        if (this.opacity > 0.5 && (this.hovered || this === selectedNode)) {
+            ctx.fillStyle = '#fff';
+            ctx.font = '10px JetBrains Mono';
+            ctx.textAlign = 'center';
+            ctx.fillText(this.data.title, this.x, this.y - 15);
+        }
+        
+        ctx.globalAlpha = 1; // Reset
     }
 }
 
@@ -94,14 +146,19 @@ async function loadData() {
 
 function drawConnections() {
     for (let i = 0; i < nodes.length; i++) {
+        // Skip connection drawing if one is filtered out
+        if (nodes[i].opacity < 0.5) continue;
+
         for (let j = i + 1; j < nodes.length; j++) {
+            if (nodes[j].opacity < 0.5) continue;
+
             const dx = nodes[i].x - nodes[j].x;
             const dy = nodes[i].y - nodes[j].y;
             const dist = Math.sqrt(dx*dx + dy*dy);
 
             if (dist < CONFIG.connectionDist) {
                 ctx.beginPath();
-                ctx.strokeStyle = `rgba(100, 100, 100, ${1 - dist/CONFIG.connectionDist})`;
+                ctx.strokeStyle = `rgba(100, 100, 100, ${(1 - dist/CONFIG.connectionDist) * 0.5})`;
                 ctx.lineWidth = 0.5;
                 ctx.moveTo(nodes[i].x, nodes[i].y);
                 ctx.lineTo(nodes[j].x, nodes[j].y);
@@ -114,8 +171,13 @@ function drawConnections() {
 function animate() {
     ctx.clearRect(0, 0, width, height);
     
-    nodes.forEach(node => node.update());
+    // Update all first
+    nodes.forEach(node => node.update(nodes));
+    
+    // Draw connections (behind nodes)
     drawConnections();
+    
+    // Draw nodes
     nodes.forEach(node => node.draw());
 
     requestAnimationFrame(animate);
@@ -129,8 +191,8 @@ window.addEventListener('mousemove', (e) => {
 });
 
 canvas.addEventListener('click', (e) => {
-    // Simple click detection
-    const clicked = nodes.find(n => n.hovered);
+    // If clicking strictly on canvas (not UI), find node
+    const clicked = nodes.find(n => n.hovered && n.opacity > 0.5);
     if (clicked) {
         selectNode(clicked);
     } else {
@@ -148,7 +210,9 @@ function selectNode(node) {
 
     title.innerText = node.data.title;
     type.innerText = node.data.type;
-    type.style.background = node.color; // Match badge to node color
+    type.className = 'badge'; // reset
+    type.style.background = CONFIG.colors[node.data.type];
+    
     summary.innerText = node.data.summary;
     link.href = node.data.link;
 
@@ -161,6 +225,23 @@ function closePanel() {
 }
 
 document.getElementById('close-panel').addEventListener('click', closePanel);
+
+// Filter Buttons
+document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        // Update active class
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        e.target.classList.add('active');
+        
+        // Update state
+        activeFilter = e.target.dataset.type;
+        
+        // Reset selection if it's filtered out
+        if (selectedNode && selectedNode.data.type !== activeFilter && activeFilter !== 'all') {
+            closePanel();
+        }
+    });
+});
 
 // Boot
 resize();
