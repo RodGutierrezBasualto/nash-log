@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mini Calc</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 2em; }
+        input, button { font-size: 1.2em; }
+    </style>
+</head>
+<body>
+    <h1>Mini Calculator</h1>
+    <input id="num1" type="number" placeholder="First number"> +
+    <input id="num2" type="number" placeholder="Second number">
+    <button onclick="add()">Add</button>
+    <div id="result" style="margin-top: 1em;"></div>
+    <script>
+        function add() {
+            const n1 = parseFloat(document.getElementById('num1').value);
+            const n2 = parseFloat(document.getElementById('num2').value);
+            if (isNaN(n1) || isNaN(n2)) {
+                document.getElementById('result').innerText = 'Enter valid numbers.';
+            } else {
+                document.getElementById('result').innerText = 'Result: ' + (n1 + n2);
+            }
+        }
+    </script>
+</body>
+</html>
