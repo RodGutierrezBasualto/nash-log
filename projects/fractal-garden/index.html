@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nash // Fractal Garden</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="overlay"></div>
+    <div class="ui-layer">
+        <header>
+            <div class="logo">NASH // PROTOCOL 006</div>
+            <h1>FRACTAL_GARDEN</h1>
+            <div class="status">SYSTEM: <span class="blink">CULTIVATING</span></div>
+        </header>
+
+        <main>
+            <canvas id="gardenCanvas"></canvas>
+        </main>
+
+        <aside class="controls">
+            <div class="control-group">
+                <label>GENETIC_CODE (Rule)</label>
+                <select id="ruleSet">
+                    <option value="tree">Binary Tree</option>
+                    <option value="fern">Barnsley Fernish</option>
+                    <option value="sierpinski">Sierpinski</option>
+                    <option value="dragon">Dragon Curve</option>
+                    <option value="custom">Unknown Mutation</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label>ITERATIONS (Depth) <span id="depthVal">4</span></label>
+                <input type="range" id="depth" min="1" max="7" value="5">
+            </div>
+
+            <div class="control-group">
+                <label>BRANCH_ANGLE (Deg) <span id="angleVal">25</span></label>
+                <input type="range" id="angle" min="0" max="180" value="25">
+            </div>
+
+            <div class="control-group">
+                <label>LENGTH_DECAY <span id="decayVal">0.7</span></label>
+                <input type="range" id="decay" min="0.1" max="0.9" step="0.05" value="0.7">
+            </div>
+
+            <div class="control-group">
+                <button id="btn-reseed">GENERATE NEW SEED</button>
+            </div>
+            
+            <div class="log-output" id="console-log">
+                > INITIALIZING BIOSPHERE...
+            </div>
+        </aside>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
