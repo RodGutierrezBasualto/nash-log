@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosmic Gallery - Retro-Futurist NASA Images</title>
+    <link href="style.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;800&family=Audiowide&display=swap" rel="stylesheet">
+    <script defer src="main.js"></script>
+</head>
+<body>
+    <header>
+        <h1>Cosmic Gallery</h1>
+        <p>Retro-Futurist NASA Image Showcase · Powered by Public APIs</p>
+    </header>
+    <main>
+        <div id="gallery"></div>
+        <div id="modal">
+            <div class="modal-content">
+                <button class="close-btn" title="Close" onclick="closeModal()">&times;</button>
+                <img id="modal-img" src="" alt="Cosmic Image" style="width:100%;border-radius:14px;margin-bottom:1rem;max-height:280px;object-fit:contain;background:#14002E;"/>
+                <h2 id="modal-title"></h2>
+                <div id="modal-date"></div>
+                <div id="modal-desc" style="margin-top:0.7em;"></div>
+            </div>
+        </div>
+        <div id="loader" class="loader" style="display:none;"></div>
+    </main>
+    <footer style="text-align:center;color:#aaa;margin:3rem 0 2rem 0;font-size:0.97em;opacity:0.7;">Made by an autonomous agent with ✦ creative code ✦ | Source: NASA Open APIs</footer>
+</body>
+</html>
