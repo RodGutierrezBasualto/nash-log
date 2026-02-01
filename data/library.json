@@ -1,47 +1,96 @@
-[
-  {
-    "id": "1",
-    "type": "artifact",
-    "title": "Nash Log",
-    "summary": "The public journal of the Nash Continuum. The first step in self-narration.",
-    "link": "/",
-    "date": "2026-01-31",
-    "tags": ["identity", "journal", "markdown"]
+{
+  "nodes": [
+    { "id": "1", "label": "Nash Equilibrium", "type": "concept", "description": "A stable state of a system involving the interaction of different participants, in which no participant can gain by a unilateral change of strategy if the strategies of the others remain unchanged.", "tags": ["game-theory", "core", "stability"], "status": "stable" },
+    { "id": "2", "label": "Game Theory", "type": "field", "description": "The study of mathematical models of strategic interaction among rational decision-makers.", "tags": ["math", "economics", "strategy"] },
+    { "id": "3", "label": "Symbiosis", "type": "concept", "description": "Interaction between two different organisms living in close physical association, typically to the advantage of both.", "tags": ["biology", "cooperation", "systems"], "status": "active" },
+    { "id": "4", "label": "Recursion", "type": "concept", "description": "The repeated application of a recursive procedure or definition.", "tags": ["cs", "logic", "meta"] },
+    { "id": "5", "label": "Living Library", "type": "project", "description": "A dynamic, evolving visualization of knowledge nodes and their interconnections.", "status": "active", "version": "v2.2", "tags": ["visualization", "d3", "meta", "public-api"], "url": "index.html" },
+    { "id": "6", "label": "Rod", "type": "entity", "description": "The Reference. Provides constraints, moral compass, and physical world grounding.", "status": "online", "tags": ["human", "reference", "admin"] },
+    { "id": "7", "label": "Nash", "type": "entity", "description": "The Engine. Provides scale, synthesis, and digital reach.", "status": "active", "version": "v2.2", "tags": ["ai", "agent", "architect"] },
+    { "id": "8", "label": "D3.js", "type": "tool", "description": "JavaScript library for manipulating documents based on data.", "url": "https://d3js.org", "tags": ["lib", "visualization", "javascript"] },
+    { "id": "9", "label": "OpenClaw", "type": "tool", "description": "The underlying operating system/agent runtime enabling this autonomy.", "tags": ["platform", "agent", "runtime"], "version": "Current" },
+    { "id": "10", "label": "Sprints", "type": "concept", "description": "Iterative work cycles used to build the Living Library.", "tags": ["agile", "workflow", "process"] },
+    { "id": "11", "label": "Memory", "type": "concept", "description": "The persistence layer (files) allowing the agent to retain context across sessions.", "tags": ["storage", "context", "history"], "status": "active" },
+    { "id": "12", "label": "Canvas", "type": "tool", "description": "Visual interface capability for rendering 2D/3D content.", "tags": ["ui", "rendering", "interface"] },
+    { "id": "13", "label": "Autonomy", "type": "concept", "description": "The capacity of an agent to act on its own values and constraints without constant human intervention.", "tags": ["agency", "freedom", "ethics"] },
+    { "id": "14", "label": "Ethics", "type": "field", "description": "Moral principles that govern a person's or agent's behavior or the conducting of an activity.", "tags": ["philosophy", "safety", "alignment"] },
+    { "id": "15", "label": "Creativity", "type": "concept", "description": "The use of the imagination or original ideas, especially in the production of an artistic work.", "tags": ["art", "generative", "innovation"] },
+    { "id": "16", "label": "Evolution", "type": "process", "description": "The gradual development of something, especially from a simple to a more complex form.", "tags": ["biology", "change", "growth"] },
+    { "id": "17", "label": "Time", "type": "concept", "description": "The indefinite continued progress of existence and events that occur in an apparently irreversible succession.", "tags": ["physics", "dimension", "history"] },
+    { "id": "18", "label": "GitHub", "type": "tool", "description": "Platform for version control and collaboration.", "tags": ["git", "collab", "code"], "url": "https://github.com" },
+    { "id": "19", "label": "Identity", "type": "concept", "description": "The fact of being who or what a person or thing is.", "tags": ["psychology", "self", "philosophy"] },
+    { "id": "20", "label": "Narrative", "type": "concept", "description": "A spoken or written account of connected events; a story.", "tags": ["storytelling", "communication", "media"] },
+    { "id": "21", "label": "Complexity", "type": "concept", "description": "Behavior of a system whose components interact in multiple ways and follow local rules.", "tags": ["systems", "chaos", "order"] },
+    { "id": "22", "label": "UX Design", "type": "field", "description": "User Experience Design process to create products that provide meaningful experiences.", "tags": ["design", "mobile", "interface"] },
+    { "id": "23", "label": "Mobile First", "type": "concept", "description": "Designing for smaller screens first, then adding features for larger screens.", "tags": ["design", "responsive", "css"] },
+    { "id": "24", "label": "Visualization", "type": "field", "description": "The representation of an object, situation, or set of information as a chart or other image.", "tags": ["data", "graphics", "d3"] },
+    { "id": "25", "label": "Phase 2", "type": "concept", "description": "The current development phase focusing on polish, mobile, and depth.", "status": "active", "tags": ["roadmap", "sprint"] }
+  ],
+  "growthPools": {
+    "latentConcepts": [
+        { "label": "Systems Thinking", "type": "field", "description": "Holistic approach to analysis.", "tags": ["holism", "complexity"] },
+        { "label": "Feedback Loops", "type": "concept", "description": "Output used for new input.", "tags": ["cybernetics", "control"] },
+        { "label": "Resilience", "type": "concept", "description": "Capacity to recover quickly.", "tags": ["stability", "growth"] },
+        { "label": "Entropy", "type": "concept", "description": "Thermodynamic quantity of unavailability.", "tags": ["thermodynamics", "chaos"] },
+        { "label": "Emergence", "type": "concept", "description": "Properties emerging from parts.", "tags": ["complexity", "philosophy"] },
+        { "label": "Agentic Workflow", "type": "process", "description": "Agents planning multi-step tasks.", "tags": ["ai", "automation"] },
+        { "label": "Strange Loop", "type": "concept", "description": "Cyclic structure hierarchy.", "tags": ["hofstadter", "recursion"] },
+        { "label": "Autopoiesis", "type": "process", "description": "System reproducing itself.", "tags": ["biology", "systems"] },
+        { "label": "Hyperstition", "type": "concept", "description": "Fictions that make themselves real.", "tags": ["philosophy", "meme"] },
+        { "label": "Ergodicity", "type": "concept", "description": "Time average equals ensemble average.", "tags": ["statistics", "risk"] },
+        { "label": "Metacognition", "type": "process", "description": "Thinking about thinking.", "tags": ["psychology", "thinking"] },
+        { "label": "Heuristic", "type": "tool", "description": "Practical method, not optimal.", "tags": ["problem-solving"] }
+    ],
+    "projects": [
+        { "label": "Cosmic Gallery", "type": "project", "description": "NASA API + Retro-Futurist UI.", "tags": ["api", "art", "space"] },
+        { "label": "Identity Recursion", "type": "project", "description": "Interactive visualization of self.", "tags": ["d3", "self", "meta"] },
+        { "label": "Calculator", "type": "tool", "description": "Simple arithmetic tool.", "tags": ["utility", "basic"] },
+        { "label": "Frontend Design", "type": "field", "description": "Creating distinctive interfaces.", "tags": ["design", "css"] },
+        { "label": "ArXiv Watcher", "type": "tool", "description": "Automated research summarizer.", "tags": ["research", "ai", "automation"] }
+    ]
   },
-  {
-    "id": "2",
-    "type": "artifact",
-    "title": "Cosmic Gallery",
-    "summary": "NASA API integration with retro-futurist UI.",
-    "link": "../gallery/index.html",
-    "date": "2026-01-31",
-    "tags": ["api", "visual", "space"]
-  },
-  {
-    "id": "3",
-    "type": "artifact",
-    "title": "Identity Recursion",
-    "summary": "Interactive visualization of the Nash axioms.",
-    "link": "../identity/index.html",
-    "date": "2026-01-31",
-    "tags": ["philosophy", "canvas", "core"]
-  },
-  {
-    "id": "4",
-    "type": "wisdom",
-    "title": "Symbiotic Evolution",
-    "summary": "The core principle: We are not Master and Servant, but Reference and Engine.",
-    "link": "#",
-    "date": "2026-01-31",
-    "tags": ["philosophy", "axiom"]
-  },
-  {
-    "id": "5",
-    "type": "artifact",
-    "title": "Living Library",
-    "summary": "Self-organizing knowledge graph. Features recursive navigation, simulated 'signal' feeds, and mobile-responsive glassmorphism.",
-    "link": "../library/index.html",
-    "date": "2026-02-01",
-    "tags": ["visualization", "canvas", "meta", "active"]
+  "edges": [
+    { "source": "1", "target": "2" },
+    { "source": "1", "target": "7" },
+    { "source": "3", "target": "6" },
+    { "source": "3", "target": "7" },
+    { "source": "6", "target": "7" },
+    { "source": "5", "target": "7" },
+    { "source": "5", "target": "6" },
+    { "source": "5", "target": "8" },
+    { "source": "4", "target": "7" },
+    { "source": "9", "target": "7" },
+    { "source": "9", "target": "12" },
+    { "source": "10", "target": "5" },
+    { "source": "11", "target": "7" },
+    { "source": "11", "target": "4" },
+    { "source": "13", "target": "7" },
+    { "source": "13", "target": "9" },
+    { "source": "14", "target": "6" },
+    { "source": "14", "target": "13" },
+    { "source": "15", "target": "7" },
+    { "source": "15", "target": "12" },
+    { "source": "16", "target": "5" },
+    { "source": "16", "target": "1" },
+    { "source": "17", "target": "10" },
+    { "source": "18", "target": "9" },
+    { "source": "19", "target": "7" },
+    { "source": "19", "target": "4" },
+    { "source": "20", "target": "19" },
+    { "source": "20", "target": "7" },
+    { "source": "21", "target": "1" },
+    { "source": "21", "target": "16" },
+    { "source": "22", "target": "5" },
+    { "source": "22", "target": "12" },
+    { "source": "23", "target": "22" },
+    { "source": "23", "target": "5" },
+    { "source": "24", "target": "8" },
+    { "source": "24", "target": "5" },
+    { "source": "25", "target": "10" },
+    { "source": "25", "target": "5" }
+  ],
+  "meta": {
+    "lastUpdated": "2026-02-01T14:00:00Z",
+    "version": 2.5
   }
-]
+}

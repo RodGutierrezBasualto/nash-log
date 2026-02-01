@@ -142,13 +142,30 @@ function resize() {
     canvas.height = height;
 }
 
+let growthData = null;
+
 async function loadData() {
     try {
         const response = await fetch('../../data/library.json');
         const data = await response.json();
-        nodes = data.map(item => new Node(item));
+        
+        // Handle new object structure vs old array structure
+        const rawNodes = Array.isArray(data) ? data : (data.nodes || []);
+        if (data.growthPools) growthData = data.growthPools;
+
+        nodes = rawNodes.map(item => new Node({
+            title: item.label || item.title, // Standardize
+            type: item.type,
+            summary: item.description || item.summary,
+            tags: item.tags,
+            link: item.url || item.link || '#',
+            date: item.date || new Date().toISOString().split('T')[0],
+            status: item.status,
+            version: item.version
+        }));
+        
         document.getElementById('node-count').innerText = nodes.length;
-        simulateGrowth(); // Start simulation
+        simulateGrowth(); 
     } catch (e) {
         console.error("Failed to load library data", e);
     }
@@ -156,17 +173,40 @@ async function loadData() {
 
 function simulateGrowth() {
     setInterval(() => {
-        if (nodes.length > 100) return; // Cap at 100
-        if (Math.random() > 0.3) return; // Control pace
+        if (nodes.length > 100) return; 
+        if (Math.random() > 0.3) return; 
 
+        // 1. Try to pick from Growth Pools (Latent Concepts or Projects)
+        if (growthData && Math.random() > 0.4) {
+            const pool = Math.random() > 0.7 ? (growthData.projects || []) : (growthData.latentConcepts || []);
+            if (pool.length > 0) {
+                const item = pool[Math.floor(Math.random() * pool.length)];
+                
+                // Avoid duplicates
+                if (nodes.find(n => n.data.title === item.label)) return;
+
+                const newNode = new Node({
+                    id: 'sim-' + Date.now(),
+                    type: item.type,
+                    title: item.label,
+                    summary: item.description,
+                    link: item.url || '#',
+                    date: new Date().toISOString().split('T')[0],
+                    tags: item.tags,
+                    status: 'simulated'
+                });
+                spawnNode(newNode);
+                return;
+            }
+        }
+
+        // 2. Fallback to Procedural Generation (System Signals)
         const sources = [
             { type: 'signal', prefix: 'SYS', color: '#00ff66', weight: 0.4 },
             { type: 'artifact', prefix: 'BLD', color: '#00f3ff', weight: 0.2 },
-            { type: 'wisdom', prefix: 'MEM', color: '#ff00ff', weight: 0.3 },
-            { type: 'paper', prefix: 'RES', color: '#ffe100', weight: 0.1 }
+            { type: 'wisdom', prefix: 'MEM', color: '#ff00ff', weight: 0.3 }
         ];
         
-        // Weighted random source
         const totalWeight = sources.reduce((sum, s) => sum + s.weight, 0);
         let random = Math.random() * totalWeight;
         const source = sources.find(s => {
@@ -174,58 +214,51 @@ function simulateGrowth() {
             return random <= 0;
         }) || sources[0];
 
-        const id = 'sim-' + Date.now();
         let title, summary, tags;
-
         if (source.prefix === 'SYS') {
             const actions = ['Optimized', 'Garbage Collection', 'Re-indexed', 'Deployed', 'Cron Job'];
             const targets = ['Vector DB', 'Cache', 'Memory.md', 'Node Graph', 'Heartbeat'];
             title = `SYS: ${actions[Math.floor(Math.random() * actions.length)]} -> ${targets[Math.floor(Math.random() * targets.length)]}`;
-            summary = "Automated system maintenance event. Efficiency increased.";
-            tags = ["system", "auto", "maintenance"];
-        } else if (source.prefix === 'MEM') {
-            const concepts = ['Recursive Identity', 'Symbiosis', 'Digital Ontology', 'Memory Architecture', 'The Void'];
-            title = `MEM: Consolidating "${concepts[Math.floor(Math.random() * concepts.length)]}"`;
-            summary = "Synthesizing recent interactions into long-term storage.";
-            tags = ["memory", "learning", "synthesis"];
-        } else if (source.prefix === 'BLD') {
-            const projects = ['Library v2', 'Identity Visualizer', 'Cosmic View', 'Nash Log'];
-            title = `BLD: Commit to ${projects[Math.floor(Math.random() * projects.length)]}`;
-            summary = "Codebase update detected. New features deployed.";
-            tags = ["build", "git", "deployment"];
+            summary = "Automated system maintenance event.";
+            tags = ["system", "auto"];
         } else {
-            title = "RES: ArXiv Scan Complete";
-            summary = "New papers detected in AI/LLM field. Summary generated.";
-            tags = ["research", "arxiv", "external"];
+            const concepts = ['Recursive Identity', 'Symbiosis', 'Digital Ontology', 'Memory Architecture'];
+            title = `MEM: ${concepts[Math.floor(Math.random() * concepts.length)]}`;
+            summary = "Synthesizing recent interactions.";
+            tags = ["memory", "learning"];
         }
         
         const newNode = new Node({
-            id: id,
+            id: 'sim-' + Date.now(),
             type: source.type,
             title: title,
-            summary: `${summary} [Simulated Live Feed]`,
+            summary: summary,
             link: "#",
             date: new Date().toISOString().split('T')[0],
-            tags: tags
+            tags: tags,
+            status: 'stream'
         });
         
-        // Spawn strategy: mostly from edges
-        if (Math.random() > 0.1) {
-            if (Math.random() > 0.5) {
-                newNode.x = Math.random() > 0.5 ? -10 : width + 10;
-                newNode.y = Math.random() * height;
-            } else {
-                newNode.x = Math.random() * width;
-                newNode.y = Math.random() > 0.5 ? -10 : height + 10;
-            }
-        } else {
-            newNode.x = width / 2;
-            newNode.y = height / 2;
-        }
-        
-        nodes.push(newNode);
-        document.getElementById('node-count').innerText = nodes.length;
+        spawnNode(newNode);
+
     }, 2000);
+}
+
+function spawnNode(newNode) {
+    if (Math.random() > 0.1) {
+        if (Math.random() > 0.5) {
+            newNode.x = Math.random() > 0.5 ? -10 : width + 10;
+            newNode.y = Math.random() * height;
+        } else {
+            newNode.x = Math.random() * width;
+            newNode.y = Math.random() > 0.5 ? -10 : height + 10;
+        }
+    } else {
+        newNode.x = width / 2;
+        newNode.y = height / 2;
+    }
+    nodes.push(newNode);
+    document.getElementById('node-count').innerText = nodes.length;
 }
 
 function drawConnections() {
@@ -289,11 +322,39 @@ function selectNode(node) {
     
     document.getElementById('detail-title').innerText = node.data.title;
     
+    // Type Badge
     const typeEl = document.getElementById('detail-type');
     typeEl.innerText = node.data.type;
-    typeEl.style.background = CONFIG.colors[node.data.type];
+    typeEl.style.background = CONFIG.colors[node.data.type] || '#555';
     
-    document.getElementById('detail-date').innerText = node.data.date || 'Unknown Date';
+    // Status/Version Badges (Dynamic Injection)
+    const header = document.querySelector('.panel-header');
+    // Clear old dynamic badges (keep type and date)
+    Array.from(header.children).forEach(c => {
+        if (c.classList.contains('badge-dynamic')) c.remove();
+    });
+
+    if (node.data.status) {
+        const statusBadge = document.createElement('span');
+        statusBadge.className = 'badge badge-dynamic';
+        statusBadge.innerText = node.data.status;
+        statusBadge.style.background = '#444';
+        statusBadge.style.color = '#fff';
+        statusBadge.style.marginLeft = '5px';
+        header.insertBefore(statusBadge, document.getElementById('detail-date'));
+    }
+
+    if (node.data.version) {
+        const verBadge = document.createElement('span');
+        verBadge.className = 'badge badge-dynamic';
+        verBadge.innerText = node.data.version;
+        verBadge.style.background = '#222';
+        verBadge.style.border = '1px solid #555';
+        verBadge.style.marginLeft = '5px';
+        header.insertBefore(verBadge, document.getElementById('detail-date'));
+    }
+
+    document.getElementById('detail-date').innerText = node.data.date || 'Unknown';
     
     const tagsContainer = document.getElementById('detail-tags');
     tagsContainer.innerHTML = '';
@@ -307,7 +368,15 @@ function selectNode(node) {
     }
 
     document.getElementById('detail-summary').innerText = node.data.summary;
-    document.getElementById('detail-link').href = node.data.link;
+    
+    const linkEl = document.getElementById('detail-link');
+    if (node.data.link && node.data.link !== '#') {
+        linkEl.href = node.data.link;
+        linkEl.style.display = 'block';
+        linkEl.innerText = node.data.type === 'project' ? 'LAUNCH PROJECT ->' : 'EXTERNAL LINK ->';
+    } else {
+        linkEl.style.display = 'none';
+    }
 
     // Related Nodes (Visual Proximity)
     const relatedContainer = document.getElementById('detail-related-container');
