@@ -20,6 +20,7 @@
         </div>
         
         <div id="filters">
+            <input type="text" id="search-input" placeholder="SEARCH NODES..." autocomplete="off">
             <button class="filter-btn active" data-type="all">ALL</button>
             <button class="filter-btn" data-type="artifact" style="--color: #00f3ff">ARTIFACTS</button>
             <button class="filter-btn" data-type="wisdom" style="--color: #ff00ff">WISDOM</button>
@@ -27,8 +28,12 @@
             <button class="filter-btn" data-type="signal" style="--color: #00ff66">SIGNAL</button>
         </div>
         <div id="details-panel" class="hidden">
+            <div class="panel-header">
+                <span id="detail-type" class="badge">Type</span>
+                <span id="detail-date" class="meta-date">YYYY-MM-DD</span>
+            </div>
             <h2 id="detail-title">Title</h2>
-            <span id="detail-type" class="badge">Type</span>
+            <div id="detail-tags" class="tags-container"></div>
             <p id="detail-summary">Summary text...</p>
             <a id="detail-link" href="#" target="_blank">ACCESS NODE -></a>
             <button id="close-panel">CLOSE</button>

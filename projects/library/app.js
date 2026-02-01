@@ -5,12 +5,12 @@ const ctx = canvas.getContext('2d');
 const CONFIG = {
     nodeSize: 4,
     connectionDist: 150,
-    attractionForce: 0.0005, // Strength of semantic cluster attraction
+    attractionForce: 0.0005,
     colors: {
-        artifact: '#00f3ff', // Cyan
-        wisdom: '#ff00ff',   // Magenta
-        paper: '#ffe100',    // Yellow
-        signal: '#00ff66'    // Green
+        artifact: '#00f3ff',
+        wisdom: '#ff00ff',
+        paper: '#ffe100',
+        signal: '#00ff66'
     }
 };
 
@@ -19,6 +19,7 @@ let width, height;
 let mouse = { x: null, y: null };
 let selectedNode = null;
 let activeFilter = 'all';
+let searchTerm = '';
 
 // Node Class
 class Node {
@@ -29,11 +30,10 @@ class Node {
         this.vx = (Math.random() - 0.5) * 0.5;
         this.vy = (Math.random() - 0.5) * 0.5;
         
-        // Animation states
-        this.currentRadius = 0; // Starts at 0 for pop-in effect
+        this.currentRadius = 0;
         this.targetRadius = CONFIG.nodeSize;
         
-        this.currentOpacity = 0; // Starts invisible
+        this.currentOpacity = 0;
         this.targetOpacity = 1;
         
         this.color = CONFIG.colors[data.type] || '#fff';
@@ -41,16 +41,14 @@ class Node {
     }
 
     update(allNodes) {
-        // Physics
         this.x += this.vx;
         this.y += this.vy;
 
-        // Bounce off walls
         if (this.x < 0 || this.x > width) this.vx *= -1;
         if (this.y < 0 || this.y > height) this.vy *= -1;
 
-        // Cluster Attraction (Same Type)
-        if (activeFilter === 'all') {
+        // Cluster Attraction
+        if (activeFilter === 'all' && searchTerm === '') {
             allNodes.forEach(other => {
                 if (this !== other && this.data.type === other.data.type) {
                     const dx = other.x - this.x;
@@ -64,7 +62,6 @@ class Node {
                 }
             });
             
-            // Limit speed
             const speed = Math.sqrt(this.vx*this.vx + this.vy*this.vy);
             if (speed > 1) {
                 this.vx = (this.vx / speed) * 1;
@@ -78,33 +75,37 @@ class Node {
             const dx = mouse.x - this.x;
             const dy = mouse.y - this.y;
             const dist = Math.sqrt(dx*dx + dy*dy);
-            
-            if (dist < 30) {
-                this.hovered = true;
-            }
+            if (dist < 30) this.hovered = true;
         }
         
-        // Filter Logic -> Target Opacity
-        if (activeFilter !== 'all' && this.data.type !== activeFilter) {
+        // Filter & Search Logic
+        let visible = true;
+        
+        if (activeFilter !== 'all' && this.data.type !== activeFilter) visible = false;
+        
+        if (searchTerm !== '') {
+            const text = (this.data.title + ' ' + this.data.summary + ' ' + (this.data.tags||[]).join(' ')).toLowerCase();
+            if (!text.includes(searchTerm)) visible = false;
+        }
+
+        if (!visible) {
             this.targetOpacity = 0.1;
-            this.targetRadius = CONFIG.nodeSize * 0.5; // Shrink if filtered
+            this.targetRadius = CONFIG.nodeSize * 0.5;
         } else {
             this.targetOpacity = 1;
-            // Target Size Logic
             if (this.hovered || this === selectedNode) {
-                this.targetRadius = CONFIG.nodeSize * 3.5; // Bigger pop
+                this.targetRadius = CONFIG.nodeSize * 3.5;
             } else {
                 this.targetRadius = CONFIG.nodeSize;
             }
         }
 
-        // Smooth Interpolation (Lerp)
         this.currentRadius += (this.targetRadius - this.currentRadius) * 0.1;
         this.currentOpacity += (this.targetOpacity - this.currentOpacity) * 0.05;
     }
 
     draw() {
-        if (this.currentOpacity < 0.01) return; // Skip invisible
+        if (this.currentOpacity < 0.01) return;
 
         ctx.globalAlpha = this.currentOpacity;
         
@@ -112,7 +113,6 @@ class Node {
         ctx.arc(this.x, this.y, this.currentRadius, 0, Math.PI * 2);
         ctx.fillStyle = this.color;
         
-        // Glow effect
         if (this.currentOpacity > 0.5 && (this.hovered || this === selectedNode)) {
             ctx.shadowBlur = 20;
             ctx.shadowColor = this.color;
@@ -121,22 +121,19 @@ class Node {
         }
         
         ctx.fill();
-        ctx.shadowBlur = 0; // Reset
+        ctx.shadowBlur = 0;
 
-        // Label on hover/select
         if (this.currentOpacity > 0.5 && (this.hovered || this === selectedNode)) {
             ctx.fillStyle = '#fff';
             ctx.font = '11px JetBrains Mono';
             ctx.textAlign = 'center';
-            // Offset label based on radius so it doesn't overlap
             ctx.fillText(this.data.title, this.x, this.y - (this.currentRadius + 10));
         }
         
-        ctx.globalAlpha = 1; // Reset
+        ctx.globalAlpha = 1;
     }
 }
 
-// Init
 function resize() {
     width = window.innerWidth;
     height = window.innerHeight;
@@ -148,13 +145,45 @@ async function loadData() {
     try {
         const response = await fetch('../../data/library.json');
         const data = await response.json();
-        // Stagger creation slightly for a "rain" effect? 
-        // Or just let them all pop in naturally via the update loop (since they start r=0)
         nodes = data.map(item => new Node(item));
         document.getElementById('node-count').innerText = nodes.length;
+        simulateGrowth(); // Start simulation
     } catch (e) {
         console.error("Failed to load library data", e);
     }
+}
+
+function simulateGrowth() {
+    setInterval(() => {
+        if (nodes.length > 50) return; 
+        if (Math.random() > 0.5) return; 
+
+        const types = ['artifact', 'wisdom', 'paper', 'signal'];
+        const type = types[Math.floor(Math.random() * types.length)];
+        const id = 'sim-' + Date.now();
+        
+        const newNode = new Node({
+            id: id,
+            type: type,
+            title: `Signal ${id.substr(-4)}`,
+            summary: "Incoming transmission detected...",
+            link: "#",
+            date: new Date().toISOString().split('T')[0],
+            tags: ["auto", "simulation"]
+        });
+        
+        // Spawn at random edge
+        if (Math.random() > 0.5) {
+            newNode.x = Math.random() > 0.5 ? 0 : width;
+            newNode.y = Math.random() * height;
+        } else {
+            newNode.x = Math.random() * width;
+            newNode.y = Math.random() > 0.5 ? 0 : height;
+        }
+        
+        nodes.push(newNode);
+        document.getElementById('node-count').innerText = nodes.length;
+    }, 2000);
 }
 
 function drawConnections() {
@@ -170,7 +199,6 @@ function drawConnections() {
 
             if (dist < CONFIG.connectionDist) {
                 ctx.beginPath();
-                // Make connections breathe slightly
                 const breathe = 0.8 + Math.sin(Date.now() * 0.002) * 0.2;
                 const alpha = (1 - dist/CONFIG.connectionDist) * 0.4 * breathe * Math.min(nodes[i].currentOpacity, nodes[j].currentOpacity);
                 
@@ -186,20 +214,12 @@ function drawConnections() {
 
 function animate() {
     ctx.clearRect(0, 0, width, height);
-    
-    // Physics & Logic
     nodes.forEach(node => node.update(nodes));
-    
-    // Draw connections (behind nodes)
     drawConnections();
-    
-    // Draw nodes
     nodes.forEach(node => node.draw());
-
     requestAnimationFrame(animate);
 }
 
-// Interaction
 window.addEventListener('resize', resize);
 window.addEventListener('mousemove', (e) => {
     mouse.x = e.clientX;
@@ -207,8 +227,6 @@ window.addEventListener('mousemove', (e) => {
 });
 
 canvas.addEventListener('click', (e) => {
-    // Check if we clicked a node
-    // Since sizes are dynamic, we check a slightly generous hitbox
     const clicked = nodes.find(n => {
         if (n.currentOpacity < 0.5) return false;
         const dx = mouse.x - n.x;
@@ -226,18 +244,28 @@ canvas.addEventListener('click', (e) => {
 function selectNode(node) {
     selectedNode = node;
     const panel = document.getElementById('details-panel');
-    const title = document.getElementById('detail-title');
-    const type = document.getElementById('detail-type');
-    const summary = document.getElementById('detail-summary');
-    const link = document.getElementById('detail-link');
-
-    title.innerText = node.data.title;
-    type.innerText = node.data.type;
-    type.className = 'badge'; 
-    type.style.background = CONFIG.colors[node.data.type];
     
-    summary.innerText = node.data.summary;
-    link.href = node.data.link;
+    document.getElementById('detail-title').innerText = node.data.title;
+    
+    const typeEl = document.getElementById('detail-type');
+    typeEl.innerText = node.data.type;
+    typeEl.style.background = CONFIG.colors[node.data.type];
+    
+    document.getElementById('detail-date').innerText = node.data.date || 'Unknown Date';
+    
+    const tagsContainer = document.getElementById('detail-tags');
+    tagsContainer.innerHTML = '';
+    if (node.data.tags) {
+        node.data.tags.forEach(tag => {
+            const span = document.createElement('span');
+            span.className = 'tag';
+            span.innerText = tag;
+            tagsContainer.appendChild(span);
+        });
+    }
+
+    document.getElementById('detail-summary').innerText = node.data.summary;
+    document.getElementById('detail-link').href = node.data.link;
 
     panel.classList.remove('hidden');
 }
@@ -249,7 +277,6 @@ function closePanel() {
 
 document.getElementById('close-panel').addEventListener('click', closePanel);
 
-// Filter Buttons
 document.querySelectorAll('.filter-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
         document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -262,7 +289,16 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
     });
 });
 
-// Boot
+document.getElementById('search-input').addEventListener('input', (e) => {
+    searchTerm = e.target.value.toLowerCase();
+    if (selectedNode) {
+        const text = (selectedNode.data.title + ' ' + selectedNode.data.summary).toLowerCase();
+        if (!text.includes(searchTerm) && searchTerm !== '') {
+            closePanel();
+        }
+    }
+});
+
 resize();
 loadData();
 animate();

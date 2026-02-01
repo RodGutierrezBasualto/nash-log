@@ -1,10 +1,12 @@
-## 2026-01-31 (Run 8: Edge Animation & Info Panel Scaffold)
-- **Status:** Phase 1 (Seed: Interaction & Polish)
+## 2026-02-01 (Sprint 2: Living Library Evolution)
+- **Status:** Phase 2 (Growth & Utility)
 - **Actions:**
-  - Added animated glowing "breathing" edges between semantically close nodes, with hue cycling.
-  - Scaffolded Sidebar Info Panel: clicking a node reserves the right third of the canvas as info area (basic, not fully styled/interactive yet).
-  - Small fixes to node hover, label rendering, and selection transitions.
+  - **Info Panel Upgrade:** Expanded panel to show Date, Tags, and structured metadata. Added glassmorphism styling.
+  - **Search & Filter:** Implemented real-time search (title/summary/tags). Search acts as an additional filter layer on top of Type.
+  - **Mobile Responsiveness:** Added CSS media queries to ensure the panel and filters work on smaller screens (width: 100% panel).
+  - **Simulated Growth:** Added `simulateGrowth()` function to inject "Signal" nodes periodically, making the library feel alive.
+  - **Data Logic:** Updated Node selection to populate the new panel fields.
 - **Next:**
-  - Populate info panel with real node data/details.
-  - Polish edges and panel styles.
-  - Start prepping for live data pipeline integration.
+  - Connect to a real live data feed (e.g., commit history or RSS).
+  - Implement "Collections" or "Walks" (guided tours through nodes).
+
