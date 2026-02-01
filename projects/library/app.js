@@ -28,10 +28,16 @@ class Node {
         this.y = Math.random() * height;
         this.vx = (Math.random() - 0.5) * 0.5;
         this.vy = (Math.random() - 0.5) * 0.5;
-        this.size = CONFIG.nodeSize;
+        
+        // Animation states
+        this.currentRadius = 0; // Starts at 0 for pop-in effect
+        this.targetRadius = CONFIG.nodeSize;
+        
+        this.currentOpacity = 0; // Starts invisible
+        this.targetOpacity = 1;
+        
         this.color = CONFIG.colors[data.type] || '#fff';
         this.hovered = false;
-        this.opacity = 1;
     }
 
     update(allNodes) {
@@ -44,7 +50,6 @@ class Node {
         if (this.y < 0 || this.y > height) this.vy *= -1;
 
         // Cluster Attraction (Same Type)
-        // Only if no filter is active (otherwise it gets messy)
         if (activeFilter === 'all') {
             allNodes.forEach(other => {
                 if (this !== other && this.data.type === other.data.type) {
@@ -52,14 +57,14 @@ class Node {
                     const dy = other.y - this.y;
                     const dist = Math.sqrt(dx*dx + dy*dy);
                     
-                    if (dist < 300) { // Only attract if somewhat close
+                    if (dist < 300) { 
                         this.vx += dx * CONFIG.attractionForce;
                         this.vy += dy * CONFIG.attractionForce;
                     }
                 }
             });
             
-            // Limit speed so they don't explode
+            // Limit speed
             const speed = Math.sqrt(this.vx*this.vx + this.vy*this.vy);
             if (speed > 1) {
                 this.vx = (this.vx / speed) * 1;
@@ -76,35 +81,40 @@ class Node {
             
             if (dist < 30) {
                 this.hovered = true;
-                // Expand slightly if hovered
             }
         }
         
-        // Filter logic
+        // Filter Logic -> Target Opacity
         if (activeFilter !== 'all' && this.data.type !== activeFilter) {
-            this.opacity = 0.1;
+            this.targetOpacity = 0.1;
+            this.targetRadius = CONFIG.nodeSize * 0.5; // Shrink if filtered
         } else {
-            this.opacity = 1;
+            this.targetOpacity = 1;
+            // Target Size Logic
+            if (this.hovered || this === selectedNode) {
+                this.targetRadius = CONFIG.nodeSize * 3.5; // Bigger pop
+            } else {
+                this.targetRadius = CONFIG.nodeSize;
+            }
         }
-        
-        // Size logic
-        if (this.hovered || this === selectedNode) {
-            this.size = CONFIG.nodeSize * 2.5;
-        } else {
-            this.size = CONFIG.nodeSize;
-        }
+
+        // Smooth Interpolation (Lerp)
+        this.currentRadius += (this.targetRadius - this.currentRadius) * 0.1;
+        this.currentOpacity += (this.targetOpacity - this.currentOpacity) * 0.05;
     }
 
     draw() {
-        ctx.globalAlpha = this.opacity;
+        if (this.currentOpacity < 0.01) return; // Skip invisible
+
+        ctx.globalAlpha = this.currentOpacity;
         
         ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.arc(this.x, this.y, this.currentRadius, 0, Math.PI * 2);
         ctx.fillStyle = this.color;
         
-        // Glow
-        if (this.opacity > 0.5 && (this.hovered || this === selectedNode)) {
-            ctx.shadowBlur = 15;
+        // Glow effect
+        if (this.currentOpacity > 0.5 && (this.hovered || this === selectedNode)) {
+            ctx.shadowBlur = 20;
             ctx.shadowColor = this.color;
         } else {
             ctx.shadowBlur = 0;
@@ -114,11 +124,12 @@ class Node {
         ctx.shadowBlur = 0; // Reset
 
         // Label on hover/select
-        if (this.opacity > 0.5 && (this.hovered || this === selectedNode)) {
+        if (this.currentOpacity > 0.5 && (this.hovered || this === selectedNode)) {
             ctx.fillStyle = '#fff';
-            ctx.font = '10px JetBrains Mono';
+            ctx.font = '11px JetBrains Mono';
             ctx.textAlign = 'center';
-            ctx.fillText(this.data.title, this.x, this.y - 15);
+            // Offset label based on radius so it doesn't overlap
+            ctx.fillText(this.data.title, this.x, this.y - (this.currentRadius + 10));
         }
         
         ctx.globalAlpha = 1; // Reset
@@ -137,6 +148,8 @@ async function loadData() {
     try {
         const response = await fetch('../../data/library.json');
         const data = await response.json();
+        // Stagger creation slightly for a "rain" effect? 
+        // Or just let them all pop in naturally via the update loop (since they start r=0)
         nodes = data.map(item => new Node(item));
         document.getElementById('node-count').innerText = nodes.length;
     } catch (e) {
@@ -146,11 +159,10 @@ async function loadData() {
 
 function drawConnections() {
     for (let i = 0; i < nodes.length; i++) {
-        // Skip connection drawing if one is filtered out
-        if (nodes[i].opacity < 0.5) continue;
+        if (nodes[i].currentOpacity < 0.3) continue;
 
         for (let j = i + 1; j < nodes.length; j++) {
-            if (nodes[j].opacity < 0.5) continue;
+            if (nodes[j].currentOpacity < 0.3) continue;
 
             const dx = nodes[i].x - nodes[j].x;
             const dy = nodes[i].y - nodes[j].y;
@@ -158,7 +170,11 @@ function drawConnections() {
 
             if (dist < CONFIG.connectionDist) {
                 ctx.beginPath();
-                ctx.strokeStyle = `rgba(100, 100, 100, ${(1 - dist/CONFIG.connectionDist) * 0.5})`;
+                // Make connections breathe slightly
+                const breathe = 0.8 + Math.sin(Date.now() * 0.002) * 0.2;
+                const alpha = (1 - dist/CONFIG.connectionDist) * 0.4 * breathe * Math.min(nodes[i].currentOpacity, nodes[j].currentOpacity);
+                
+                ctx.strokeStyle = `rgba(120, 120, 120, ${alpha})`;
                 ctx.lineWidth = 0.5;
                 ctx.moveTo(nodes[i].x, nodes[i].y);
                 ctx.lineTo(nodes[j].x, nodes[j].y);
@@ -171,7 +187,7 @@ function drawConnections() {
 function animate() {
     ctx.clearRect(0, 0, width, height);
     
-    // Update all first
+    // Physics & Logic
     nodes.forEach(node => node.update(nodes));
     
     // Draw connections (behind nodes)
@@ -191,8 +207,15 @@ window.addEventListener('mousemove', (e) => {
 });
 
 canvas.addEventListener('click', (e) => {
-    // If clicking strictly on canvas (not UI), find node
-    const clicked = nodes.find(n => n.hovered && n.opacity > 0.5);
+    // Check if we clicked a node
+    // Since sizes are dynamic, we check a slightly generous hitbox
+    const clicked = nodes.find(n => {
+        if (n.currentOpacity < 0.5) return false;
+        const dx = mouse.x - n.x;
+        const dy = mouse.y - n.y;
+        return Math.sqrt(dx*dx + dy*dy) < (n.currentRadius + 10);
+    });
+
     if (clicked) {
         selectNode(clicked);
     } else {
@@ -210,7 +233,7 @@ function selectNode(node) {
 
     title.innerText = node.data.title;
     type.innerText = node.data.type;
-    type.className = 'badge'; // reset
+    type.className = 'badge'; 
     type.style.background = CONFIG.colors[node.data.type];
     
     summary.innerText = node.data.summary;
@@ -229,14 +252,10 @@ document.getElementById('close-panel').addEventListener('click', closePanel);
 // Filter Buttons
 document.querySelectorAll('.filter-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
-        // Update active class
         document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
         e.target.classList.add('active');
-        
-        // Update state
         activeFilter = e.target.dataset.type;
         
-        // Reset selection if it's filtered out
         if (selectedNode && selectedNode.data.type !== activeFilter && activeFilter !== 'all') {
             closePanel();
         }
