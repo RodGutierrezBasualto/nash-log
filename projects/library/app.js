@@ -155,35 +155,49 @@ async function loadData() {
 
 function simulateGrowth() {
     setInterval(() => {
-        if (nodes.length > 50) return; 
-        if (Math.random() > 0.5) return; 
+        if (nodes.length > 80) return; // Increased limit
+        if (Math.random() > 0.4) return; // Slightly more frequent
 
-        const types = ['artifact', 'wisdom', 'paper', 'signal'];
-        const type = types[Math.floor(Math.random() * types.length)];
+        const sources = [
+            { type: 'signal', prefix: 'SYS', color: '#00ff66' },
+            { type: 'artifact', prefix: 'BLD', color: '#00f3ff' },
+            { type: 'wisdom', prefix: 'LOG', color: '#ff00ff' }
+        ];
+        const source = sources[Math.floor(Math.random() * sources.length)];
         const id = 'sim-' + Date.now();
+        
+        const concepts = ['Evolution', 'Entropy', 'Recursion', 'Synthesis', 'Pattern', 'Void', 'Nexus', 'Glitch'];
+        const actions = ['Detected', 'Optimized', 'Purged', 'Compiled', 'Refactored', 'Observed', 'Indexed'];
+        
+        const title = `${source.prefix}: ${actions[Math.floor(Math.random() * actions.length)]} ${concepts[Math.floor(Math.random() * concepts.length)]}`;
         
         const newNode = new Node({
             id: id,
-            type: type,
-            title: `Signal ${id.substr(-4)}`,
-            summary: "Incoming transmission detected...",
+            type: source.type,
+            title: title,
+            summary: `Automated system event. Source: ${source.prefix}-Stream. Timestamp: ${new Date().toISOString()}`,
             link: "#",
             date: new Date().toISOString().split('T')[0],
-            tags: ["auto", "simulation"]
+            tags: ["auto", "simulation", source.prefix.toLowerCase()]
         });
         
-        // Spawn at random edge
-        if (Math.random() > 0.5) {
-            newNode.x = Math.random() > 0.5 ? 0 : width;
-            newNode.y = Math.random() * height;
+        // Spawn strategy: mostly from edges, sometimes from center (glitch)
+        if (Math.random() > 0.1) {
+            if (Math.random() > 0.5) {
+                newNode.x = Math.random() > 0.5 ? 0 : width;
+                newNode.y = Math.random() * height;
+            } else {
+                newNode.x = Math.random() * width;
+                newNode.y = Math.random() > 0.5 ? 0 : height;
+            }
         } else {
-            newNode.x = Math.random() * width;
-            newNode.y = Math.random() > 0.5 ? 0 : height;
+            newNode.x = width / 2;
+            newNode.y = height / 2;
         }
         
         nodes.push(newNode);
         document.getElementById('node-count').innerText = nodes.length;
-    }, 2000);
+    }, 1500);
 }
 
 function drawConnections() {
@@ -266,6 +280,36 @@ function selectNode(node) {
 
     document.getElementById('detail-summary').innerText = node.data.summary;
     document.getElementById('detail-link').href = node.data.link;
+
+    // Related Nodes (Visual Proximity)
+    const relatedContainer = document.getElementById('detail-related-container');
+    const relatedList = document.getElementById('detail-related');
+    relatedList.innerHTML = '';
+    
+    // Find connected nodes
+    const connected = nodes
+        .filter(n => n !== node && n.currentOpacity > 0.3)
+        .map(n => {
+            const dx = n.x - node.x;
+            const dy = n.y - node.y;
+            return { node: n, dist: Math.sqrt(dx*dx + dy*dy) };
+        })
+        .filter(item => item.dist < CONFIG.connectionDist)
+        .sort((a, b) => a.dist - b.dist)
+        .slice(0, 3);
+
+    if (connected.length > 0) {
+        relatedContainer.classList.remove('hidden');
+        connected.forEach(item => {
+            const li = document.createElement('li');
+            li.innerHTML = `<span style="color:${item.node.color}">●</span> ${item.node.data.title}`;
+            li.style.cursor = 'pointer';
+            li.onclick = () => selectNode(item.node); // Recursion!
+            relatedList.appendChild(li);
+        });
+    } else {
+        relatedContainer.classList.add('hidden');
+    }
 
     panel.classList.remove('hidden');
 }
