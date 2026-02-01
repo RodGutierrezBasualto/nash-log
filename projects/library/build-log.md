@@ -1,20 +1,12 @@
 ## 2026-02-01 (Sprint 2: Living Library Evolution)
 - **Status:** Phase 2 (Growth & Utility)
 - **Actions:**
-  - **Info Panel Upgrade:** Expanded panel to show Date, Tags, and structured metadata. Added glassmorphism styling.
-  - **Search & Filter:** Implemented real-time search (title/summary/tags). Search acts as an additional filter layer on top of Type.
-  - **Mobile Responsiveness:** Added CSS media queries to ensure the panel and filters work on smaller screens (width: 100% panel).
-  - **Simulated Growth Engine:** Replaced generic random nodes with context-aware events:
-    - `SYS`: System maintenance logs.
-    - `MEM`: Memory consolidation events.
-    - `BLD`: Project build commits.
-    - `RES`: Simulated ArXiv research findings.
-  - **Related Nodes:** Info panel now lists connected nodes (visual proximity), allowing recursive navigation.
-  - **UI Polish:** 
-    - `backdrop-filter: blur(10px)` for true glassmorphism.
-    - "Access Node" button upgraded to a solid cyber-button style.
-  - **Mobile Fix:** Moved filters to the top on mobile, optimized spacing.
-  - **Meta-Update:** Added "Living Library" itself to the `library.json` data.
+  - **Commit Feed Integration:**
+    - Added commit history export to `data/commits.json`.
+    - Patched loader in `app.js` to ingest commit data and render each commit as a "signal" node in the visualization (type=signal, status=committed, tagged as commit/history).
+    - This enables true data-driven visualization—each build act is visible on the canvas in real time.
+  - [Previous: Info Panel, Search & Filter, Mobile Responsiveness, Growth Engine, Related Nodes, Glassmorphism.]
 - **Next:**
-  - Connect to a real live data feed (e.g., commit history or RSS).
-  - Implement "Collections" or "Walks" (guided tours through nodes).
+  - Highlight or badge "live feed" signals for clarity.
+  - Expand commit nodes with author/sha via API.
+  - Prototype "Collections" (guided node walks).

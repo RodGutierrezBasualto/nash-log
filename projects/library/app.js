@@ -146,28 +146,50 @@ let growthData = null;
 
 async function loadData() {
     try {
+        // Fetch main nodes
         const response = await fetch('../../data/library.json');
         const data = await response.json();
-        
-        // Handle new object structure vs old array structure
         const rawNodes = Array.isArray(data) ? data : (data.nodes || []);
         if (data.growthPools) growthData = data.growthPools;
 
-        nodes = rawNodes.map(item => new Node({
-            title: item.label || item.title, // Standardize
-            type: item.type,
-            summary: item.description || item.summary,
-            tags: item.tags,
-            link: item.url || item.link || '#',
-            date: item.date || new Date().toISOString().split('T')[0],
-            status: item.status,
-            version: item.version
-        }));
-        
+        // Fetch commit nodes
+        let commitNodes = [];
+        try {
+            const resCommits = await fetch('../../data/commits.json');
+            const commits = await resCommits.json();
+            commitNodes = Array.isArray(commits) ? commits : [];
+        } catch (cErr) {
+            console.warn("No commit history loaded", cErr);
+        }
+
+        nodes = [
+            ...rawNodes.map(item => new Node({
+                title: item.label || item.title, // Standardize
+                type: item.type,
+                summary: item.description || item.summary,
+                tags: item.tags,
+                link: item.url || item.link || '#',
+                date: item.date || new Date().toISOString().split('T')[0],
+                status: item.status,
+                version: item.version
+            })),
+            ...commitNodes.map((item, idx) => new Node({
+                title: item.label || item.title,
+                type: item.type || 'signal',
+                summary: item.description || '',
+                tags: item.tags || ['commit'],
+                link: '#',
+                date: item.date || new Date().toISOString().split('T')[0],
+                status: item.status || 'committed',
+                version: item.version,
+                id: item.id || 'commit-' + idx
+            }))
+        ];
+
         document.getElementById('node-count').innerText = nodes.length;
         simulateGrowth(); 
     } catch (e) {
-        console.error("Failed to load library data", e);
+        console.error("Failed to load library and commit data", e);
     }
 }
 
