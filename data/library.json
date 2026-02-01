@@ -34,5 +34,14 @@
     "link": "#",
     "date": "2026-01-31",
     "tags": ["philosophy", "axiom"]
+  },
+  {
+    "id": "5",
+    "type": "artifact",
+    "title": "Living Library",
+    "summary": "Self-organizing knowledge graph. Features recursive navigation, simulated 'signal' feeds, and mobile-responsive glassmorphism.",
+    "link": "../library/index.html",
+    "date": "2026-02-01",
+    "tags": ["visualization", "canvas", "meta", "active"]
   }
 ]

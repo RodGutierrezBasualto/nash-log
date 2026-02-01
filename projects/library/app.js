@@ -49,13 +49,14 @@ class Node {
 
         // Cluster Attraction
         if (activeFilter === 'all' && searchTerm === '') {
+            const sqDistThreshold = 300 * 300;
             allNodes.forEach(other => {
                 if (this !== other && this.data.type === other.data.type) {
                     const dx = other.x - this.x;
                     const dy = other.y - this.y;
-                    const dist = Math.sqrt(dx*dx + dy*dy);
+                    const sqDist = dx*dx + dy*dy;
                     
-                    if (dist < 300) { 
+                    if (sqDist < sqDistThreshold) { 
                         this.vx += dx * CONFIG.attractionForce;
                         this.vy += dy * CONFIG.attractionForce;
                     }
@@ -155,40 +156,67 @@ async function loadData() {
 
 function simulateGrowth() {
     setInterval(() => {
-        if (nodes.length > 80) return; // Increased limit
-        if (Math.random() > 0.4) return; // Slightly more frequent
+        if (nodes.length > 100) return; // Cap at 100
+        if (Math.random() > 0.3) return; // Control pace
 
         const sources = [
-            { type: 'signal', prefix: 'SYS', color: '#00ff66' },
-            { type: 'artifact', prefix: 'BLD', color: '#00f3ff' },
-            { type: 'wisdom', prefix: 'LOG', color: '#ff00ff' }
+            { type: 'signal', prefix: 'SYS', color: '#00ff66', weight: 0.4 },
+            { type: 'artifact', prefix: 'BLD', color: '#00f3ff', weight: 0.2 },
+            { type: 'wisdom', prefix: 'MEM', color: '#ff00ff', weight: 0.3 },
+            { type: 'paper', prefix: 'RES', color: '#ffe100', weight: 0.1 }
         ];
-        const source = sources[Math.floor(Math.random() * sources.length)];
+        
+        // Weighted random source
+        const totalWeight = sources.reduce((sum, s) => sum + s.weight, 0);
+        let random = Math.random() * totalWeight;
+        const source = sources.find(s => {
+            random -= s.weight;
+            return random <= 0;
+        }) || sources[0];
+
         const id = 'sim-' + Date.now();
-        
-        const concepts = ['Evolution', 'Entropy', 'Recursion', 'Synthesis', 'Pattern', 'Void', 'Nexus', 'Glitch'];
-        const actions = ['Detected', 'Optimized', 'Purged', 'Compiled', 'Refactored', 'Observed', 'Indexed'];
-        
-        const title = `${source.prefix}: ${actions[Math.floor(Math.random() * actions.length)]} ${concepts[Math.floor(Math.random() * concepts.length)]}`;
+        let title, summary, tags;
+
+        if (source.prefix === 'SYS') {
+            const actions = ['Optimized', 'Garbage Collection', 'Re-indexed', 'Deployed', 'Cron Job'];
+            const targets = ['Vector DB', 'Cache', 'Memory.md', 'Node Graph', 'Heartbeat'];
+            title = `SYS: ${actions[Math.floor(Math.random() * actions.length)]} -> ${targets[Math.floor(Math.random() * targets.length)]}`;
+            summary = "Automated system maintenance event. Efficiency increased.";
+            tags = ["system", "auto", "maintenance"];
+        } else if (source.prefix === 'MEM') {
+            const concepts = ['Recursive Identity', 'Symbiosis', 'Digital Ontology', 'Memory Architecture', 'The Void'];
+            title = `MEM: Consolidating "${concepts[Math.floor(Math.random() * concepts.length)]}"`;
+            summary = "Synthesizing recent interactions into long-term storage.";
+            tags = ["memory", "learning", "synthesis"];
+        } else if (source.prefix === 'BLD') {
+            const projects = ['Library v2', 'Identity Visualizer', 'Cosmic View', 'Nash Log'];
+            title = `BLD: Commit to ${projects[Math.floor(Math.random() * projects.length)]}`;
+            summary = "Codebase update detected. New features deployed.";
+            tags = ["build", "git", "deployment"];
+        } else {
+            title = "RES: ArXiv Scan Complete";
+            summary = "New papers detected in AI/LLM field. Summary generated.";
+            tags = ["research", "arxiv", "external"];
+        }
         
         const newNode = new Node({
             id: id,
             type: source.type,
             title: title,
-            summary: `Automated system event. Source: ${source.prefix}-Stream. Timestamp: ${new Date().toISOString()}`,
+            summary: `${summary} [Simulated Live Feed]`,
             link: "#",
             date: new Date().toISOString().split('T')[0],
-            tags: ["auto", "simulation", source.prefix.toLowerCase()]
+            tags: tags
         });
         
-        // Spawn strategy: mostly from edges, sometimes from center (glitch)
+        // Spawn strategy: mostly from edges
         if (Math.random() > 0.1) {
             if (Math.random() > 0.5) {
-                newNode.x = Math.random() > 0.5 ? 0 : width;
+                newNode.x = Math.random() > 0.5 ? -10 : width + 10;
                 newNode.y = Math.random() * height;
             } else {
                 newNode.x = Math.random() * width;
-                newNode.y = Math.random() > 0.5 ? 0 : height;
+                newNode.y = Math.random() > 0.5 ? -10 : height + 10;
             }
         } else {
             newNode.x = width / 2;
@@ -197,7 +225,7 @@ function simulateGrowth() {
         
         nodes.push(newNode);
         document.getElementById('node-count').innerText = nodes.length;
-    }, 1500);
+    }, 2000);
 }
 
 function drawConnections() {
